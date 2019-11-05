@@ -28,6 +28,8 @@
 #ifndef FMT_FORMAT_H_
 #define FMT_FORMAT_H_
 
+#define FMT_HEADER_ONLY
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>

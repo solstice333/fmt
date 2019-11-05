@@ -8,6 +8,8 @@
 #ifndef FMT_CORE_H_
 #define FMT_CORE_H_
 
+#define FMT_HEADER_ONLY
+
 #include <cassert>
 #include <cstdio>  // std::FILE
 #include <cstring>
