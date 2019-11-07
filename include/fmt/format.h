@@ -3510,19 +3510,39 @@ inline internal::udl_arg<wchar_t>
 operator"" _a(const wchar_t *s, std::size_t) { return {s}; }
 } // inline namespace literals
 #endif // FMT_USE_USER_DEFINED_LITERALS
+
+template <typename S>
+struct str : fmt::compile_string {
+	typedef 
+		typename std::remove_cv<
+			typename std::remove_pointer<
+				typename std::decay<S>::type
+			>::type
+		>::type char_type;
+
+	typedef
+		typename std::conditional<
+			std::is_array<S>::value && std::is_same<char_type, char>::value,
+			typename std::decay<S>::type,
+			S
+		>::type str_ty;
+
+	str_ty s;
+
+	FMT_CONSTEXPR operator fmt::basic_string_view<char_type>() const {
+		return {s, sizeof(s) / sizeof(char_type) - 1};
+	}
+
+	str(const S& s): s(s) {}
+};
+
+template <typename S>
+inline str<S> make_str(const S& s) {
+	return fmt::str<S>(s);
+}
 FMT_END_NAMESPACE
 
-#define FMT_STRING(s) [] { \
-    typedef typename std::remove_cv<std::remove_pointer< \
-      typename std::decay<decltype(s)>::type>::type>::type ct; \
-    struct str : fmt::compile_string { \
-      typedef ct char_type; \
-      FMT_CONSTEXPR operator fmt::basic_string_view<ct>() const { \
-        return {s, sizeof(s) / sizeof(ct) - 1}; \
-      } \
-    }; \
-    return str{}; \
-  }()
+#define FMT_STRING(s) [] { return fmt::make_str(s); }()
 
 #if defined(FMT_STRING_ALIAS) && FMT_STRING_ALIAS
 /**
