@@ -2061,10 +2061,14 @@ FMT_CONSTEXPR const typename ParseContext::char_type *
 template <typename Char, typename ErrorHandler, typename... Args>
 class format_string_checker {
  public:
-  explicit FMT_CONSTEXPR format_string_checker(
-      basic_string_view<Char> format_str, ErrorHandler eh)
-    : arg_id_((std::numeric_limits<unsigned>::max)()), context_(format_str, eh),
-      parse_funcs_{&parse_format_specs<Args, parse_context_type>...} {}
+	explicit FMT_CONSTEXPR format_string_checker(
+		basic_string_view<Char> format_str, ErrorHandler eh)
+		: arg_id_((std::numeric_limits<unsigned>::max)()), context_(format_str, eh) {
+		parse_func pf_init[NUM_ARGS] = 
+			{ &parse_format_specs<Args, parse_context_type>... };
+		for (size_t i = 0; i < NUM_ARGS; ++i)
+			parse_funcs_[i] = pf_init[i];
+	}
 
   FMT_CONSTEXPR void on_text(const Char *, const Char *) {}
 
